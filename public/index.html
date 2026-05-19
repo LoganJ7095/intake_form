@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient Intake Form</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="form-container">
+      <h1>Patient Intake Form</h1>
+
+      <div id="status-message" class="status-message hidden"></div>
+
+      <form id="intake-form" novalidate>
+        <!-- Patient Information -->
+        <section>
+          <h2>Patient Information</h2>
+          <div class="form-row">
+            <label>
+              Patient's Name:
+              <input name="patient-name" required placeholder="Full name" />
+            </label>
+            <label>
+              DOB:
+              <input name="patient-dob" type="date" required />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Sponsor's Name:
+              <input name="sponsor-name" required placeholder="Full name" />
+            </label>
+            <label>
+              SSN:
+              <input
+                name="ssn"
+                required
+                placeholder="XXX-XX-XXXX"
+                pattern="\d{3}-?\d{2}-?\d{4}"
+                maxlength="11"
+              />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              DSM-V Diagnosis and Severity Level:
+              <input name="dsm" placeholder="Diagnosis and severity level" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              Email:
+              <input name="email" type="email" required placeholder="email@example.com" />
+            </label>
+          </div>
+        </section>
+
+        <!-- Parent/Guardian Information -->
+        <section>
+          <h2>Parent / Guardian Information</h2>
+          <div class="form-row">
+            <label>
+              Parent Name:
+              <input name="parent-name" required placeholder="Full name" />
+            </label>
+            <label>
+              DOB:
+              <input name="parent-dob" type="date" required />
+            </label>
+            <label>
+              Age:
+              <input name="parent-age" type="number" min="0" max="120" required placeholder="Age" />
+            </label>
+          </div>
+        </section>
+
+        <!-- PCM Information -->
+        <section>
+          <h2>PCM Information</h2>
+          <div class="form-row">
+            <label>
+              Referring Provider:
+              <input name="reffering-provider" required placeholder="Provider name" />
+            </label>
+            <label>
+              Date of Diagnosis:
+              <input name="diagnosis-date" type="date" required />
+            </label>
+          </div>
+        </section>
+
+        <!-- Client's History -->
+        <section>
+          <h2>Client's History</h2>
+
+          <div class="form-row">
+            <label>
+              Age:
+              <input name="patient-age" type="number" min="0" max="120" required placeholder="Age" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Street Name:
+              <input name="street-name" required placeholder="123 Main St" />
+            </label>
+            <label>
+              City:
+              <input name="city" required placeholder="City" />
+            </label>
+            <label>
+              State:
+              <input name="state" required placeholder="ST" maxlength="2" />
+            </label>
+            <label>
+              Zip Code:
+              <input
+                name="zip-code"
+                required
+                placeholder="XXXXX"
+                pattern="\d{5}(-\d{4})?"
+                maxlength="10"
+              />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              Siblings:
+              <input name="sibling" required placeholder="Names and ages" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              School:
+              <input name="school" required placeholder="School name" />
+            </label>
+            <label>
+              IEP:
+              <input name="iep" required placeholder="Yes / No / Details" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              Dual Diagnosis:
+              <input name="dual-diag" required placeholder="Dual diagnosis details" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width textarea-label">
+              Family History:
+              <textarea name="history" rows="4" placeholder="Relevant family history..."></textarea>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              Medications:
+              <input name="medications" required placeholder="Current medications" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width textarea-label">
+              Allergies:
+              <textarea name="allergies" required rows="3" placeholder="List allergies..."></textarea>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Previous Services:
+              <input name="services" required placeholder="Service type" />
+            </label>
+            <label>
+              Mo/Yr:
+              <input name="date-of-services" placeholder="MM/YYYY" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width textarea-label">
+              Outcome of Prior Services:
+              <textarea name="outcome" required rows="3" placeholder="Describe outcome..."></textarea>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Additional Services: OT/PT/SLP
+              <input name="additional-service" required placeholder="Service type(s)" />
+            </label>
+            <label>
+              Hours Per Wk:
+              <input name="hours" type="number" min="0" required placeholder="Hours" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              Enrolled in Echo?:
+              <input name="echo" placeholder="Yes / No" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              CCP by ASN:
+              <input name="asn" placeholder="Yes / No / Details" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width">
+              Days of Additional Services:
+              <input name="additional-days" required placeholder="e.g. Mon, Wed, Fri" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width textarea-label">
+              Concerns:
+              <textarea name="concerns" required rows="4" placeholder="Primary concerns..."></textarea>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width textarea-label">
+              Goals:
+              <textarea name="goals" required rows="4" placeholder="Treatment goals..."></textarea>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="full-width textarea-label">
+              End Result:
+              <textarea name="end-result" required rows="4" placeholder="Desired end result..."></textarea>
+            </label>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" id="submit-btn">Submit &amp; Upload to Google Drive</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="form.js"></script>
+  </body>
+</html>
