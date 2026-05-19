@@ -12,6 +12,10 @@ body {
   background: #f0f4f8;
   color: #1a202c;
   line-height: 1.6;
+  /* Smooth momentum scrolling on iOS/iPadOS */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent double-tap zoom on interactive elements */
+  touch-action: manipulation;
 }
 
 /* ── Layout ── */
@@ -21,7 +25,10 @@ body {
   background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 2.5rem 2rem;
+  /* Respect the safe-area insets on newer iPads (notch / home indicator) */
+  padding: 2.5rem calc(2rem + env(safe-area-inset-right))
+           2.5rem calc(2rem + env(safe-area-inset-left));
+  padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
 }
 
 h1 {
@@ -62,7 +69,7 @@ section h2 {
 label {
   display: flex;
   flex-direction: column;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #4a5568;
   flex: 1 1 180px;
@@ -80,15 +87,25 @@ label.textarea-label {
 input,
 textarea {
   margin-top: 0.3rem;
-  padding: 0.45rem 0.65rem;
+  /* 16px minimum prevents iOS Safari from auto-zooming on focus */
+  font-size: 16px;
+  /* Minimum 44px height satisfies Apple HIG touch-target guidelines */
+  min-height: 44px;
+  padding: 0 0.75rem;
   border: 1px solid #cbd5e0;
   border-radius: 5px;
-  font-size: 0.9rem;
   color: #2d3748;
   background: #ffffff;
   transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
   font-family: inherit;
+  /* Remove iOS default inner shadow / rounded look */
+  -webkit-appearance: none;
+  appearance: none;
+  /* Tap: no flash highlight */
+  -webkit-tap-highlight-color: transparent;
+  /* Each tap is a single action — no double-tap-to-zoom delay */
+  touch-action: manipulation;
 }
 
 input:focus,
@@ -105,7 +122,10 @@ textarea:invalid:not(:placeholder-shown) {
 
 textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  line-height: 1.5;
 }
 
 /* ── Status message ── */
@@ -147,7 +167,9 @@ textarea {
 }
 
 #submit-btn {
-  padding: 0.75rem 2.5rem;
+  /* Minimum 44px height for touch targets */
+  min-height: 44px;
+  padding: 0 2.5rem;
   background: #3182ce;
   color: #ffffff;
   font-size: 1rem;
@@ -157,6 +179,10 @@ textarea {
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
   letter-spacing: 0.03em;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 #submit-btn:hover:not(:disabled) {
@@ -172,14 +198,43 @@ textarea {
   cursor: not-allowed;
 }
 
-/* ── Responsive ── */
-@media (max-width: 600px) {
+/* ── iPad portrait (768 px) ── */
+@media (min-width: 768px) and (max-width: 1024px) {
   .form-container {
-    margin: 0.5rem;
-    padding: 1.25rem 0.75rem;
+    margin: 1.25rem;
+    border-radius: 10px;
+  }
+
+  label {
+    flex: 1 1 200px;
+  }
+}
+
+/* ── iPad landscape & larger tablets (1024 px+) ── */
+@media (min-width: 1024px) {
+  .form-container {
+    max-width: 960px;
+  }
+}
+
+/* ── Phones (< 768 px) ── */
+@media (max-width: 767px) {
+  .form-container {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    /* Also honor safe-area on iPhone notch */
+    padding: 1.25rem calc(0.75rem + env(safe-area-inset-right))
+             calc(1.25rem + env(safe-area-inset-bottom))
+             calc(0.75rem + env(safe-area-inset-left));
   }
 
   label {
     flex: 1 1 100%;
   }
+
+  #submit-btn {
+    width: 100%;
+  }
 }
+

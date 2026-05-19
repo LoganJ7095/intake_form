@@ -10,6 +10,7 @@ A web application that renders a patient intake form, generates a PDF from the s
 - Server-side PDF generation using [PDFKit](https://pdfkit.org/)
 - Automatic upload to a specified Google Drive folder via a service account
 - Client-side and server-side validation of required fields
+- **iPad-optimized**: installable as a home-screen PWA, touch-friendly 44 px targets, no auto-zoom
 
 ---
 
@@ -90,3 +91,45 @@ intake_form/
 ├── .env.example     # Environment variable template
 └── .gitignore
 ```
+
+---
+
+## Using on an iPad
+
+### Install as a home-screen app (recommended)
+
+This app is a **Progressive Web App (PWA)**, so it runs in full-screen mode without the browser toolbar — ideal for clinical use on an iPad.
+
+1. Open **Safari** on the iPad and navigate to the server URL (e.g. `http://192.168.1.10:3000`).
+2. Tap the **Share** button (box with an upward arrow) in the Safari toolbar.
+3. Tap **"Add to Home Screen"**.
+4. Confirm the name **"Intake Form"** and tap **Add**.
+
+The app will appear on the home screen and launch as a standalone full-screen app, just like a native application.
+
+> **Tip:** For production use, host the app over **HTTPS** (e.g. behind an nginx reverse proxy with a TLS certificate). Safari on iPadOS requires HTTPS for full PWA features.
+
+### Adding the home-screen icon
+
+Place PNG images in the `public/icons/` folder:
+
+| File | Size | Used for |
+|------|------|---------|
+| `icon-180.png` | 180×180 | Safari "Add to Home Screen" icon |
+| `icon-192.png` | 192×192 | PWA manifest (Android / Chrome) |
+| `icon-512.png` | 512×512 | PWA manifest splash screen |
+
+### iPad-specific optimizations included
+
+| Optimization | Details |
+|---|---|
+| No auto-zoom on focus | All inputs use `font-size: 16px` — iOS Safari only zooms when size < 16 px |
+| 44 px touch targets | Every input and the submit button meet Apple's Human Interface Guideline minimum |
+| `touch-action: manipulation` | Removes the 300 ms double-tap delay for instant response |
+| `-webkit-appearance: none` | Removes iOS inner-shadow / rounded-rect styling for a consistent look |
+| Safe-area insets | Padding respects the home indicator on iPad Pro with Face ID |
+| `viewport-fit=cover` | Content fills edge-to-edge on modern iPad Pros |
+| Apple meta tags | `apple-mobile-web-app-capable` enables full-screen standalone mode |
+| PWA manifest | `manifest.json` enables "Add to Home Screen" on all modern browsers |
+| `autocomplete` / `inputmode` | Correct keyboard type (numeric, email, etc.) and autofill on each field |
+

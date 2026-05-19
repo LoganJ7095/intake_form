@@ -2,8 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover lets content fill notch/home-indicator areas on newer iPads -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
     <title>Patient Intake Form</title>
+
+    <!-- PWA / Add to Home Screen (iPad & iPhone) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Intake Form" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#3182ce" />
+
+    <!-- Home-screen icon (place a 180×180 PNG at public/icons/icon-180.png) -->
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <link rel="manifest" href="manifest.json" />
+
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -19,18 +33,20 @@
           <div class="form-row">
             <label>
               Patient's Name:
-              <input name="patient-name" required placeholder="Full name" />
+              <input name="patient-name" required placeholder="Full name"
+                autocomplete="name" autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               DOB:
-              <input name="patient-dob" type="date" required />
+              <input name="patient-dob" type="date" required autocomplete="bday" />
             </label>
           </div>
 
           <div class="form-row">
             <label>
               Sponsor's Name:
-              <input name="sponsor-name" required placeholder="Full name" />
+              <input name="sponsor-name" required placeholder="Full name"
+                autocomplete="name" autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               SSN:
@@ -40,6 +56,9 @@
                 placeholder="XXX-XX-XXXX"
                 pattern="\d{3}-?\d{2}-?\d{4}"
                 maxlength="11"
+                inputmode="numeric"
+                autocomplete="off"
+                autocorrect="off"
               />
             </label>
           </div>
@@ -47,14 +66,16 @@
           <div class="form-row">
             <label class="full-width">
               DSM-V Diagnosis and Severity Level:
-              <input name="dsm" placeholder="Diagnosis and severity level" />
+              <input name="dsm" placeholder="Diagnosis and severity level"
+                autocapitalize="sentences" autocorrect="on" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width">
               Email:
-              <input name="email" type="email" required placeholder="email@example.com" />
+              <input name="email" type="email" required placeholder="email@example.com"
+                autocomplete="email" autocapitalize="none" autocorrect="off" />
             </label>
           </div>
         </section>
@@ -65,15 +86,17 @@
           <div class="form-row">
             <label>
               Parent Name:
-              <input name="parent-name" required placeholder="Full name" />
+              <input name="parent-name" required placeholder="Full name"
+                autocomplete="name" autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               DOB:
-              <input name="parent-dob" type="date" required />
+              <input name="parent-dob" type="date" required autocomplete="bday" />
             </label>
             <label>
               Age:
-              <input name="parent-age" type="number" min="0" max="120" required placeholder="Age" />
+              <input name="parent-age" type="number" min="0" max="120" required placeholder="Age"
+                inputmode="numeric" />
             </label>
           </div>
         </section>
@@ -84,7 +107,8 @@
           <div class="form-row">
             <label>
               Referring Provider:
-              <input name="reffering-provider" required placeholder="Provider name" />
+              <input name="reffering-provider" required placeholder="Provider name"
+                autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               Date of Diagnosis:
@@ -100,22 +124,26 @@
           <div class="form-row">
             <label>
               Age:
-              <input name="patient-age" type="number" min="0" max="120" required placeholder="Age" />
+              <input name="patient-age" type="number" min="0" max="120" required placeholder="Age"
+                inputmode="numeric" />
             </label>
           </div>
 
           <div class="form-row">
             <label>
               Street Name:
-              <input name="street-name" required placeholder="123 Main St" />
+              <input name="street-name" required placeholder="123 Main St"
+                autocomplete="street-address" autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               City:
-              <input name="city" required placeholder="City" />
+              <input name="city" required placeholder="City"
+                autocomplete="address-level2" autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               State:
-              <input name="state" required placeholder="ST" maxlength="2" />
+              <input name="state" required placeholder="ST" maxlength="2"
+                autocomplete="address-level1" autocapitalize="characters" autocorrect="off" />
             </label>
             <label>
               Zip Code:
@@ -125,6 +153,9 @@
                 placeholder="XXXXX"
                 pattern="\d{5}(-\d{4})?"
                 maxlength="10"
+                inputmode="numeric"
+                autocomplete="postal-code"
+                autocorrect="off"
               />
             </label>
           </div>
@@ -132,117 +163,135 @@
           <div class="form-row">
             <label class="full-width">
               Siblings:
-              <input name="sibling" required placeholder="Names and ages" />
+              <input name="sibling" required placeholder="Names and ages"
+                autocapitalize="words" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label>
               School:
-              <input name="school" required placeholder="School name" />
+              <input name="school" required placeholder="School name"
+                autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               IEP:
-              <input name="iep" required placeholder="Yes / No / Details" />
+              <input name="iep" required placeholder="Yes / No / Details"
+                autocapitalize="sentences" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width">
               Dual Diagnosis:
-              <input name="dual-diag" required placeholder="Dual diagnosis details" />
+              <input name="dual-diag" required placeholder="Dual diagnosis details"
+                autocapitalize="sentences" autocorrect="on" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width textarea-label">
               Family History:
-              <textarea name="history" rows="4" placeholder="Relevant family history..."></textarea>
+              <textarea name="history" rows="4" placeholder="Relevant family history..."
+                autocapitalize="sentences" autocorrect="on"></textarea>
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width">
               Medications:
-              <input name="medications" required placeholder="Current medications" />
+              <input name="medications" required placeholder="Current medications"
+                autocapitalize="sentences" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width textarea-label">
               Allergies:
-              <textarea name="allergies" required rows="3" placeholder="List allergies..."></textarea>
+              <textarea name="allergies" required rows="3" placeholder="List allergies..."
+                autocapitalize="sentences" autocorrect="on"></textarea>
             </label>
           </div>
 
           <div class="form-row">
             <label>
               Previous Services:
-              <input name="services" required placeholder="Service type" />
+              <input name="services" required placeholder="Service type"
+                autocapitalize="words" autocorrect="off" />
             </label>
             <label>
               Mo/Yr:
-              <input name="date-of-services" placeholder="MM/YYYY" />
+              <input name="date-of-services" placeholder="MM/YYYY"
+                inputmode="numeric" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width textarea-label">
               Outcome of Prior Services:
-              <textarea name="outcome" required rows="3" placeholder="Describe outcome..."></textarea>
+              <textarea name="outcome" required rows="3" placeholder="Describe outcome..."
+                autocapitalize="sentences" autocorrect="on"></textarea>
             </label>
           </div>
 
           <div class="form-row">
             <label>
               Additional Services: OT/PT/SLP
-              <input name="additional-service" required placeholder="Service type(s)" />
+              <input name="additional-service" required placeholder="Service type(s)"
+                autocapitalize="characters" autocorrect="off" />
             </label>
             <label>
               Hours Per Wk:
-              <input name="hours" type="number" min="0" required placeholder="Hours" />
+              <input name="hours" type="number" min="0" required placeholder="Hours"
+                inputmode="decimal" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width">
               Enrolled in Echo?:
-              <input name="echo" placeholder="Yes / No" />
+              <input name="echo" placeholder="Yes / No"
+                autocapitalize="none" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width">
               CCP by ASN:
-              <input name="asn" placeholder="Yes / No / Details" />
+              <input name="asn" placeholder="Yes / No / Details"
+                autocapitalize="none" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width">
               Days of Additional Services:
-              <input name="additional-days" required placeholder="e.g. Mon, Wed, Fri" />
+              <input name="additional-days" required placeholder="e.g. Mon, Wed, Fri"
+                autocapitalize="words" autocorrect="off" />
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width textarea-label">
               Concerns:
-              <textarea name="concerns" required rows="4" placeholder="Primary concerns..."></textarea>
+              <textarea name="concerns" required rows="4" placeholder="Primary concerns..."
+                autocapitalize="sentences" autocorrect="on"></textarea>
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width textarea-label">
               Goals:
-              <textarea name="goals" required rows="4" placeholder="Treatment goals..."></textarea>
+              <textarea name="goals" required rows="4" placeholder="Treatment goals..."
+                autocapitalize="sentences" autocorrect="on"></textarea>
             </label>
           </div>
 
           <div class="form-row">
             <label class="full-width textarea-label">
               End Result:
-              <textarea name="end-result" required rows="4" placeholder="Desired end result..."></textarea>
+              <textarea name="end-result" required rows="4" placeholder="Desired end result..."
+                autocapitalize="sentences" autocorrect="on"></textarea>
             </label>
           </div>
         </section>
