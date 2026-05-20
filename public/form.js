@@ -32,7 +32,6 @@ const sections = [
       ["Sponsor's Name", "sponsor-name"],
       ["SSN", "ssn"],
       ["DSM-V Diagnosis and Severity Level", "dsm"],
-      ["Email", "email"],
     ],
   },
   {
@@ -41,6 +40,7 @@ const sections = [
       ["Parent Name", "parent-name"],
       ["DOB", "parent-dob"],
       ["Age", "parent-age"],
+      ["Email", "email"],
     ],
   },
   {
@@ -57,12 +57,7 @@ const sections = [
       [
         "Address",
         (data) =>
-          [
-            data["street-name"],
-            data.city,
-            data.state,
-            data["zip-code"],
-          ]
+          [data["street-name"], data.city, data.state, data["zip-code"]]
             .filter(Boolean)
             .join(", "),
       ],
@@ -398,10 +393,7 @@ function createPdfBlob(data) {
     contentNumbers.push(6 + pageIndex * 2);
   });
 
-  objects.set(
-    catalogObjectNumber,
-    "<< /Type /Catalog /Pages 2 0 R >>"
-  );
+  objects.set(catalogObjectNumber, "<< /Type /Catalog /Pages 2 0 R >>");
   objects.set(
     pagesObjectNumber,
     `<< /Type /Pages /Count ${pages.length} /Kids [${pageNumbers
@@ -421,9 +413,11 @@ function createPdfBlob(data) {
     const contentStream = page
       .map(
         (line) =>
-          `BT /${line.fontResource} ${line.fontSize} Tf 1 0 0 1 ${line.x.toFixed(
+          `BT /${line.fontResource} ${
+            line.fontSize
+          } Tf 1 0 0 1 ${line.x.toFixed(2)} ${line.y.toFixed(
             2
-          )} ${line.y.toFixed(2)} Tm ${pdfHexString(line.text)} Tj ET`
+          )} Tm ${pdfHexString(line.text)} Tj ET`
       )
       .join("\n");
     const pageObjectNumber = pageNumbers[index];
@@ -445,7 +439,11 @@ function createPdfBlob(data) {
   let offset = encoder.encode(output).length;
   const offsets = [0];
 
-  for (let objectNumber = 1; objectNumber <= maxObjectNumber; objectNumber += 1) {
+  for (
+    let objectNumber = 1;
+    objectNumber <= maxObjectNumber;
+    objectNumber += 1
+  ) {
     const objectBody = `${objectNumber} 0 obj\n${objects.get(
       objectNumber
     )}\nendobj\n`;
@@ -457,7 +455,11 @@ function createPdfBlob(data) {
   const xrefOffset = offset;
   output += `xref\n0 ${maxObjectNumber + 1}\n0000000000 65535 f \n`;
 
-  for (let objectNumber = 1; objectNumber <= maxObjectNumber; objectNumber += 1) {
+  for (
+    let objectNumber = 1;
+    objectNumber <= maxObjectNumber;
+    objectNumber += 1
+  ) {
     output += `${String(offsets[objectNumber]).padStart(10, "0")} 00000 n \n`;
   }
 
@@ -470,14 +472,22 @@ function createPdfBlob(data) {
 
 function waitForGoogleIdentity() {
   return new Promise((resolve, reject) => {
-    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+    if (
+      window.google &&
+      window.google.accounts &&
+      window.google.accounts.oauth2
+    ) {
       resolve();
       return;
     }
 
     const startedAt = Date.now();
     const intervalId = window.setInterval(() => {
-      if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      if (
+        window.google &&
+        window.google.accounts &&
+        window.google.accounts.oauth2
+      ) {
         window.clearInterval(intervalId);
         resolve();
         return;
@@ -634,14 +644,18 @@ async function processQueue(interactive = false) {
       for (const entry of queue) {
         const pdfBlob = createPdfBlob(entry.data);
         await uploadPdfToDrive(pdfBlob, entry.fileName, interactive);
-        nextQueue = nextQueue.filter((queuedEntry) => queuedEntry.id !== entry.id);
+        nextQueue = nextQueue.filter(
+          (queuedEntry) => queuedEntry.id !== entry.id
+        );
         setQueue(nextQueue);
         uploadedCount += 1;
       }
 
       if (uploadedCount > 0) {
         showStatus(
-          `Uploaded ${uploadedCount} queued ${uploadedCount === 1 ? "PDF" : "PDFs"} to Google Drive.`,
+          `Uploaded ${uploadedCount} queued ${
+            uploadedCount === 1 ? "PDF" : "PDFs"
+          } to Google Drive.`,
           "success"
         );
       }
@@ -740,12 +754,3 @@ restoreDraft();
 updateQueueStatus();
 updateConnectionStatus();
 registerServiceWorker();
-
-if (!appConfig.googleClientId) {
-  showStatus(
-    "Google Drive upload is not configured yet. Add your OAuth client ID to /public/app-config.js to enable direct uploads.",
-    "info"
-  );
-} else {
-  processQueue(false);
-}
