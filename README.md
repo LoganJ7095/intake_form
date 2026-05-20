@@ -1,160 +1,142 @@
 # Patient Intake Form
 
-A web application that renders a patient intake form, generates a PDF from the submitted data, and uploads it directly to a Google Drive folder.
+An installable intake-form web app for iPads that:
+
+- runs as a home-screen PWA
+- generates the PDF on the device
+- uploads directly to Google Drive with per-user Google OAuth
+- saves drafts locally and queues uploads while offline
 
 ---
 
-## Features
+## What changed
 
-- All required patient, parent/guardian, PCM, and history fields
-- Server-side PDF generation using [PDFKit](https://pdfkit.org/)
-- Automatic upload to a specified Google Drive folder via a service account
-- Client-side and server-side validation of required fields
-- **iPad-optimized**: installable as a home-screen PWA, touch-friendly 44 px targets, no auto-zoom
+This app no longer depends on a backend `/submit` endpoint, Google service-account JSON, or server-side PDF generation. The browser handles PDF creation and Google Drive upload directly, so you can host it as static files or serve it locally on a LAN for iPads to install.
 
----
-
-## Prerequisites
-
-- **Node.js** ≥ 18
-- A **Google Cloud project** with the **Google Drive API** enabled
-- A **service account** with a downloaded JSON key file
-- The target Google Drive folder shared with the service account's email address
-
----
-
-## Setup
-
-### 1. Clone & install dependencies
-
-```bash
-git clone https://github.com/LoganJ7095/intake_form.git
-cd intake_form
-npm install
-```
-
-### 2. Create a Google Cloud service account
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a new project (or select an existing one).
-3. Enable the **Google Drive API** for the project.
-4. Navigate to **IAM & Admin → Service Accounts** and create a new service account.
-5. Create a JSON key for the service account and download it — save it as `credentials.json` in the project root.
-6. Open the target Google Drive folder, click **Share**, and add the service account email (looks like `name@project.iam.gserviceaccount.com`) with **Editor** access.
-
-### 3. Configure environment variables
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```
-PORT=3000
-GOOGLE_DRIVE_FOLDER_ID=<your_folder_id>
-GOOGLE_APPLICATION_CREDENTIALS=./credentials.json
-```
-
-The **folder ID** is the last segment of your Google Drive folder URL:
-`https://drive.google.com/drive/folders/<FOLDER_ID>`
-
-### 4. Run the server
-
-```bash
-npm start
-```
-
-Open your browser at **http://localhost:3000**.
-
----
-
-## How it works
-
-1. The user fills out the intake form in the browser and clicks **Submit & Upload to Google Drive**.
-2. The browser sends a JSON `POST` to `/submit`.
-3. The server validates all required fields, builds a formatted PDF with [PDFKit](https://pdfkit.org/), and uploads it to the configured Google Drive folder using a service account.
-4. The form displays a success message with a link to the uploaded file.
+> This is still a web app, not a native App Store app. For installs on iPads, open it in Safari and use **Add to Home Screen**.
 
 ---
 
 ## Project structure
 
-```
+```text
 intake_form/
 ├── public/
-│   ├── index.html   # Intake form UI
-│   ├── styles.css   # Form styling
-│   └── form.js      # Client-side submission logic
-├── server.js        # Express server, PDF builder, Drive uploader
-├── package.json
-├── .env.example     # Environment variable template
-└── .gitignore
+│   ├── app-config.js       # Google OAuth / Drive folder configuration
+│   ├── form.js             # Client-side PDF, queue, and Drive upload logic
+│   ├── index.html          # Intake form UI
+│   ├── manifest.json       # Install metadata
+│   ├── service-worker.js   # Offline shell cache
+│   ├── styles.css          # Touch-friendly iPad styling
+│   └── icons/              # Home-screen / PWA icons
+├── server.js               # Optional local static file server
+├── .env.example            # Optional PORT for local hosting
+└── package.json
 ```
 
 ---
 
-## Using on an iPad
+## Google setup
 
-### Host the app as a server (not a local file)
+### 1. Create an OAuth client
 
-Do not open `index.html` directly with a `file://` path. Run the Node server:
+In Google Cloud Console:
+
+1. Create or select a project.
+2. Enable the **Google Drive API**.
+3. Configure the OAuth consent screen.
+4. Create an **OAuth 2.0 Client ID** for a **Web application**.
+5. Add each deployment origin to **Authorized JavaScript origins**.
+   - Example local origin: `http://192.168.1.10:3000`
+   - Example hosted origin: `https://your-domain.example`
+
+### 2. Configure the app
+
+Edit `/home/runner/work/intake_form/intake_form/public/app-config.js`:
+
+```js
+window.INTAKE_FORM_CONFIG = {
+  googleClientId: "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+  googleDriveFolderId: "OPTIONAL_SHARED_FOLDER_ID",
+};
+```
+
+Notes:
+
+- `googleClientId` is required.
+- `googleDriveFolderId` is optional. If blank, uploads go to the signed-in user's Drive.
+- Do **not** use a service-account JSON file in an iPad-installable app.
+
+---
+
+## Run locally on your network
+
+This app can be served locally for installation and use on iPads connected to the same Wi-Fi.
+
+### 1. Install dependencies
 
 ```bash
+cd /home/runner/work/intake_form/intake_form
 npm install
-cp .env.example .env
+```
+
+### 2. Optional: set the port
+
+```bash
+cp /home/runner/work/intake_form/intake_form/.env.example /home/runner/work/intake_form/intake_form/.env
+```
+
+### 3. Start the local static server
+
+```bash
+cd /home/runner/work/intake_form/intake_form
 npm start
 ```
 
-### Open from iPad Safari
+### 4. Open it on the iPad
 
-- **Same Wi-Fi network:** open `http://<computer-local-ip>:3000`
-- **Public deployment (recommended):** open your hosted `https://...` URL
+In Safari on the iPad, visit:
 
-> **Tip:** Use **HTTPS** for best iPad/Safari compatibility and reliable home-screen app behavior.
+```text
+http://<computer-local-ip>:3000
+```
 
-### Install as a home-screen app (recommended)
+Then use **Share → Add to Home Screen**.
 
-This app is a **Progressive Web App (PWA)**, so it runs in full-screen mode without the browser toolbar — ideal for clinical use on an iPad.
+---
 
-1. Open **Safari** on the iPad and navigate to the server URL (e.g. `http://192.168.1.10:3000`).
-2. Tap the **Share** button (box with an upward arrow) in the Safari toolbar.
-3. Tap **"Add to Home Screen"**.
-4. Confirm the name **"Intake Form"** and tap **Add**.
+## How uploads work now
 
-The app will appear on the home screen and launch as a standalone full-screen app, just like a native application.
+1. The user fills out the form.
+2. The app generates the PDF directly in the browser.
+3. The user signs in with Google.
+4. The PDF uploads directly to Google Drive using the user's Wi-Fi/internet connection.
+5. If the connection is unavailable, the submission is queued locally and retried later.
 
-### Adding the home-screen icon
+---
 
-Place PNG images in the `public/icons/` folder:
+## Offline and reliability behavior
 
-| File | Size | Used for |
-|------|------|---------|
-| `icon-180.png` | 180×180 | Safari "Add to Home Screen" icon |
-| `icon-192.png` | 192×192 | PWA manifest (Android / Chrome) |
-| `icon-512.png` | 512×512 | PWA manifest splash screen |
+- Drafts auto-save to local storage on the iPad.
+- **Save Draft** writes the current form to the device immediately.
+- If the iPad is offline during submit, the form is added to a pending upload queue.
+- **Sync Pending Uploads** retries queued uploads once internet is available.
+- The service worker caches the app shell so the installed app can reopen without a live server connection after initial load.
 
-### iPad-specific optimizations included
+---
 
-| Optimization | Details |
-|---|---|
-| No auto-zoom on focus | All inputs use `font-size: 16px` — iOS Safari only zooms when size < 16 px |
-| 44 px touch targets | Every input and the submit button meet Apple's Human Interface Guideline minimum |
-| `touch-action: manipulation` | Removes the 300 ms double-tap delay for instant response |
-| `-webkit-appearance: none` | Removes iOS inner-shadow / rounded-rect styling for a consistent look |
-| Safe-area insets | Padding respects the home indicator on iPad Pro with Face ID |
-| `viewport-fit=cover` | Content fills edge-to-edge on modern iPad Pros |
-| Apple meta tags | `apple-mobile-web-app-capable` enables full-screen standalone mode |
-| PWA manifest | `manifest.json` enables "Add to Home Screen" on all modern browsers |
-| `autocomplete` / `inputmode` | Correct keyboard type (numeric, email, etc.) and autofill on each field |
+## iPad usage notes
 
-### Troubleshooting iPad form submission
+- Best experience: open in Safari, then install to the home screen.
+- Uploading to Google Drive still requires internet access.
+- If you use a shared Drive folder, the signed-in Google account must have permission to upload into it.
+- For multiple clinics or networks, add each allowed origin to the Google OAuth client settings.
 
-If the form opens on iPad but submit fails:
+---
 
-1. Verify `.env` on the server host:
-   - `GOOGLE_APPLICATION_CREDENTIALS`
-   - `GOOGLE_DRIVE_FOLDER_ID`
-2. Confirm the credentials file path is valid on the host machine.
-3. Ensure network/firewall rules allow iPad access to the app host and port.
-4. Check backend logs from `npm start` for `/submit` errors.
+## Security model
+
+- The app uses Google OAuth with `drive.file`, not a service account.
+- Upload permission is limited to files the app creates.
+- No Google credentials are stored in the repository.
+- Do not commit real OAuth client IDs for environments you do not control unless you intend them to be public.

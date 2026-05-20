@@ -24,6 +24,16 @@
     <div class="form-container">
       <h1>Patient Intake Form</h1>
 
+      <div class="app-meta">
+        <p class="app-note">
+          Install this app on an iPad, save drafts offline, and upload PDFs directly to Google Drive when internet access is available.
+        </p>
+        <div class="runtime-status" aria-live="polite">
+          <span id="connection-status" class="status-pill">Checking connection…</span>
+          <span id="queue-status" class="status-pill">Pending uploads: 0</span>
+        </div>
+      </div>
+
       <div id="status-message" class="status-message hidden"></div>
 
       <form id="intake-form" novalidate>
@@ -297,11 +307,15 @@
         </section>
 
         <div class="form-actions">
-          <button type="submit" id="submit-btn">Submit &amp; Upload to Google Drive</button>
+          <button type="button" id="save-draft-btn" class="secondary-button">Save Draft</button>
+          <button type="button" id="sync-queue-btn" class="secondary-button">Sync Pending Uploads</button>
+          <button type="submit" id="submit-btn">Create PDF &amp; Upload to Google Drive</button>
         </div>
       </form>
     </div>
 
+    <script src="app-config.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="form.js"></script>
   </body>
 </html>

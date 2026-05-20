@@ -1,15 +1,13 @@
 {
   "name": "intake-form",
   "version": "1.0.0",
-  "description": "Patient intake form that generates a PDF and uploads it to Google Drive",
+  "description": "Installable patient intake form with client-side PDF generation and Google Drive upload",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "pdfkit": "^0.15.0",
-    "googleapis": "^140.0.1",
     "dotenv": "^16.4.5"
   }
 }
