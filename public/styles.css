@@ -40,6 +40,38 @@ h1 {
   padding-bottom: 0.75rem;
 }
 
+.app-meta {
+  margin-bottom: 1.25rem;
+}
+
+.app-note {
+  margin-bottom: 0.75rem;
+  color: #4a5568;
+  text-align: center;
+}
+
+.runtime-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: #ebf8ff;
+  border: 1px solid #90cdf4;
+  color: #2c5282;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 /* ── Sections ── */
 section {
   margin-bottom: 1.75rem;
@@ -162,16 +194,16 @@ textarea {
 /* ── Submit button ── */
 .form-actions {
   display: flex;
-  justify-content: center;
-  margin-top: 1.5rem;
+   flex-wrap: wrap;
+   justify-content: center;
+   gap: 0.75rem;
+   margin-top: 1.5rem;
 }
 
-#submit-btn {
+button {
   /* Minimum 44px height for touch targets */
   min-height: 44px;
   padding: 0 2.5rem;
-  background: #3182ce;
-  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   border: none;
@@ -185,17 +217,32 @@ textarea {
   touch-action: manipulation;
 }
 
+#submit-btn {
+  background: #3182ce;
+  color: #ffffff;
+}
+
 #submit-btn:hover:not(:disabled) {
   background: #2b6cb0;
 }
 
-#submit-btn:active:not(:disabled) {
+button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-#submit-btn:disabled {
+button:disabled {
   background: #a0aec0;
   cursor: not-allowed;
+}
+
+.secondary-button {
+  background: #edf2f7;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #e2e8f0;
 }
 
 /* ── iPad portrait (768 px) ── */
@@ -236,5 +283,8 @@ textarea {
   #submit-btn {
     width: 100%;
   }
-}
 
+  .secondary-button {
+    width: 100%;
+  }
+}

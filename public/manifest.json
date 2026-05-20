@@ -1,8 +1,10 @@
 {
   "name": "Patient Intake Form",
   "short_name": "Intake Form",
-  "description": "Patient intake form — generates a PDF and uploads it to Google Drive.",
-  "start_url": "/",
+  "description": "Installable intake form that builds PDFs on-device and uploads them to Google Drive.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f0f4f8",
