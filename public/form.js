@@ -115,13 +115,17 @@ function setQueue(queue) {
 }
 
 function updateQueueStatus() {
-  queueStatus.textContent = `Pending uploads: ${getQueue().length}`;
+  if (queueStatus) {
+    queueStatus.textContent = `Pending uploads: ${getQueue().length}`;
+  }
 }
 
 function updateConnectionStatus() {
-  connectionStatus.textContent = navigator.onLine
-    ? "Internet available"
-    : "Offline: uploads will queue";
+  if (connectionStatus) {
+    connectionStatus.textContent = navigator.onLine
+      ? "Internet available"
+      : "Offline: uploads will queue";
+  }
 }
 
 function setBusyState(isBusy) {
@@ -754,3 +758,7 @@ restoreDraft();
 updateQueueStatus();
 updateConnectionStatus();
 registerServiceWorker();
+
+if (appConfig.googleClientId) {
+  processQueue(false);
+}
