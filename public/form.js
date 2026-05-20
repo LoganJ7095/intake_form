@@ -120,13 +120,17 @@ function setQueue(queue) {
 }
 
 function updateQueueStatus() {
-  queueStatus.textContent = `Pending uploads: ${getQueue().length}`;
+  if (queueStatus) {
+    queueStatus.textContent = `Pending uploads: ${getQueue().length}`;
+  }
 }
 
 function updateConnectionStatus() {
-  connectionStatus.textContent = navigator.onLine
-    ? "Internet available"
-    : "Offline: uploads will queue";
+  if (connectionStatus) {
+    connectionStatus.textContent = navigator.onLine
+      ? "Internet available"
+      : "Offline: uploads will queue";
+  }
 }
 
 function setBusyState(isBusy) {
@@ -741,11 +745,6 @@ updateQueueStatus();
 updateConnectionStatus();
 registerServiceWorker();
 
-if (!appConfig.googleClientId) {
-  showStatus(
-    "Google Drive upload is not configured yet. Add your OAuth client ID to /public/app-config.js to enable direct uploads.",
-    "info"
-  );
-} else {
+if (appConfig.googleClientId) {
   processQueue(false);
 }
