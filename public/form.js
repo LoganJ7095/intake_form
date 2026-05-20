@@ -19,7 +19,6 @@ const PAGE_MARGIN = 50;
 const USABLE_WIDTH = PAGE_WIDTH - PAGE_MARGIN * 2;
 const LINE_HEIGHT_MULTIPLIER = 1.35;
 
-let draftSaveTimer;
 let queueProcessingPromise = null;
 let accessToken = null;
 let accessTokenExpiresAt = 0;
@@ -185,19 +184,6 @@ function restoreDraft() {
   } catch (_error) {
     localStorage.removeItem(STORAGE_KEYS.draft);
   }
-}
-
-function scheduleDraftSave() {
-  window.clearTimeout(draftSaveTimer);
-  draftSaveTimer = window.setTimeout(() => {
-    localStorage.setItem(
-      STORAGE_KEYS.draft,
-      JSON.stringify({
-        updatedAt: new Date().toISOString(),
-        data: collectFormData(),
-      })
-    );
-  }, 250);
 }
 
 function queueSubmission(data, fileName) {
@@ -672,8 +658,6 @@ async function processQueue(interactive = false) {
 
   return queueProcessingPromise;
 }
-
-form.addEventListener("input", scheduleDraftSave);
 
 saveDraftBtn.addEventListener("click", () => {
   saveDraft();

@@ -5,7 +5,7 @@ An installable intake-form web app for iPads that:
 - runs as a home-screen PWA
 - generates the PDF on the device
 - uploads directly to Google Drive with per-user Google OAuth
-- saves drafts locally and queues uploads while offline
+- saves drafts locally when requested and queues uploads while offline
 
 ---
 
@@ -117,7 +117,6 @@ Then use **Share → Add to Home Screen**.
 
 ## Offline and reliability behavior
 
-- Drafts auto-save to local storage on the iPad.
 - **Save Draft** writes the current form to the device immediately.
 - If the iPad is offline during submit, the form is added to a pending upload queue.
 - **Sync Pending Uploads** retries queued uploads once internet is available.
