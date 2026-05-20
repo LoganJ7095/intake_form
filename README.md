@@ -96,6 +96,23 @@ intake_form/
 
 ## Using on an iPad
 
+### Host the app as a server (not a local file)
+
+Do not open `index.html` directly with a `file://` path. Run the Node server:
+
+```bash
+npm install
+cp .env.example .env
+npm start
+```
+
+### Open from iPad Safari
+
+- **Same Wi-Fi network:** open `http://<computer-local-ip>:3000`
+- **Public deployment (recommended):** open your hosted `https://...` URL
+
+> **Tip:** Use **HTTPS** for best iPad/Safari compatibility and reliable home-screen app behavior.
+
 ### Install as a home-screen app (recommended)
 
 This app is a **Progressive Web App (PWA)**, so it runs in full-screen mode without the browser toolbar — ideal for clinical use on an iPad.
@@ -106,8 +123,6 @@ This app is a **Progressive Web App (PWA)**, so it runs in full-screen mode with
 4. Confirm the name **"Intake Form"** and tap **Add**.
 
 The app will appear on the home screen and launch as a standalone full-screen app, just like a native application.
-
-> **Tip:** For production use, host the app over **HTTPS** (e.g. behind an nginx reverse proxy with a TLS certificate). Safari on iPadOS requires HTTPS for full PWA features.
 
 ### Adding the home-screen icon
 
@@ -133,3 +148,13 @@ Place PNG images in the `public/icons/` folder:
 | PWA manifest | `manifest.json` enables "Add to Home Screen" on all modern browsers |
 | `autocomplete` / `inputmode` | Correct keyboard type (numeric, email, etc.) and autofill on each field |
 
+### Troubleshooting iPad form submission
+
+If the form opens on iPad but submit fails:
+
+1. Verify `.env` on the server host:
+   - `GOOGLE_APPLICATION_CREDENTIALS`
+   - `GOOGLE_DRIVE_FOLDER_ID`
+2. Confirm the credentials file path is valid on the host machine.
+3. Ensure network/firewall rules allow iPad access to the app host and port.
+4. Check backend logs from `npm start` for `/submit` errors.
