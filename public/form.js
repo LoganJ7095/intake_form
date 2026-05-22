@@ -3,7 +3,20 @@ const submitBtn = document.getElementById("submit-btn");
 const saveDraftBtn = document.getElementById("save-draft-btn");
 const statusMessage = document.getElementById("status-message");
 
-const appConfig = window.INTAKE_FORM_CONFIG || {};
+const rawAppConfig = window.INTAKE_FORM_CONFIG || {};
+const appConfig = {
+  googleClientId:
+    (typeof rawAppConfig.googleClientId === "string" &&
+      rawAppConfig.googleClientId.trim()) ||
+    (typeof rawAppConfig.googleOAuthClientId === "string" &&
+      rawAppConfig.googleOAuthClientId.trim()) ||
+    (typeof rawAppConfig.clientId === "string" && rawAppConfig.clientId.trim()) ||
+    "",
+  googleDriveFolderId:
+    typeof rawAppConfig.googleDriveFolderId === "string"
+      ? rawAppConfig.googleDriveFolderId.trim()
+      : "",
+};
 const STORAGE_KEYS = {
   draft: "intake-form-draft-v2",
   queue: "intake-form-upload-queue-v2",
@@ -29,6 +42,7 @@ const sections = [
       ["Sponsor's Name", "sponsor-name"],
       ["SSN", "ssn"],
       ["DSM-V Diagnosis and Severity Level", "dsm"],
+      ["Email", "email"],
     ],
   },
   {
@@ -37,7 +51,6 @@ const sections = [
       ["Parent Name", "parent-name"],
       ["DOB", "parent-dob"],
       ["Age", "parent-age"],
-      ["Email", "email"],
     ],
   },
   {
@@ -49,35 +62,50 @@ const sections = [
   },
   {
     title: "Client's History",
-    fields: [
-      ["Age", "patient-age"],
-      [
-        "Address",
-        (data) =>
+    items: [
+      { type: "field", label: "Age", descriptor: "patient-age" },
+      {
+        type: "field",
+        label: "Address",
+        descriptor: (data) =>
           [data["street-name"], data.city, data.state, data["zip-code"]]
             .filter(Boolean)
             .join(", "),
-      ],
-      ["Siblings", "sibling"],
-      ["School", "school"],
-      ["IEP", "iep"],
-      ["Dual Diagnosis", "dual-diag"],
-      ["Medications", "medications"],
-      ["Previous Services", "services"],
-      ["Mo/Yr of Services", "date-of-services"],
-      ["Additional Services (OT/PT/SLP)", "additional-service"],
-      ["Hours Per Week", "hours"],
-      ["Enrolled in Echo?", "echo"],
-      ["CCP by ASN", "asn"],
-      ["Days of Additional Services", "additional-days"],
-    ],
-    paragraphs: [
-      ["Family History", "history"],
-      ["Allergies", "allergies"],
-      ["Outcome of Prior Services", "outcome"],
-      ["Concerns", "concerns"],
-      ["Goals", "goals"],
-      ["End Result", "end-result"],
+      },
+      { type: "field", label: "Siblings", descriptor: "sibling" },
+      { type: "field", label: "School", descriptor: "school" },
+      { type: "field", label: "IEP", descriptor: "iep" },
+      { type: "field", label: "Dual Diagnosis", descriptor: "dual-diag" },
+      { type: "paragraph", label: "Family History", key: "history" },
+      { type: "field", label: "Medications", descriptor: "medications" },
+      { type: "paragraph", label: "Allergies", key: "allergies" },
+      { type: "field", label: "Previous Services", descriptor: "services" },
+      {
+        type: "field",
+        label: "Mo/Yr of Services",
+        descriptor: "date-of-services",
+      },
+      {
+        type: "paragraph",
+        label: "Outcome of Prior Services",
+        key: "outcome",
+      },
+      {
+        type: "field",
+        label: "Additional Services (OT/PT/SLP)",
+        descriptor: "additional-service",
+      },
+      { type: "field", label: "Hours Per Week", descriptor: "hours" },
+      { type: "field", label: "Enrolled in Echo?", descriptor: "echo" },
+      { type: "field", label: "CCP by ASN", descriptor: "asn" },
+      {
+        type: "field",
+        label: "Days of Additional Services",
+        descriptor: "additional-days",
+      },
+      { type: "paragraph", label: "Concerns", key: "concerns" },
+      { type: "paragraph", label: "Goals", key: "goals" },
+      { type: "paragraph", label: "End Result", key: "end-result" },
     ],
   },
 ];
@@ -185,6 +213,21 @@ function buildSafeFileName(data, createdAt = new Date()) {
   return `${safeName || "patient"}.pdf`;
 }
 
+function buildClientFolderName(data) {
+  const patientName = String(data["patient-name"] || "")
+    .trim()
+    .replace(/\s+/g, " ");
+  const nameParts = patientName.split(" ").filter(Boolean);
+  const rawFirstName = (nameParts[0] || "Client").replace(/[^a-zA-Z0-9-]/g, "");
+  const firstName = rawFirstName || "Client";
+  const lastNamePart = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+  const lastInitial = lastNamePart
+    ? lastNamePart.replace(/[^a-zA-Z0-9]/g, "").charAt(0).toUpperCase()
+    : "";
+
+  return lastInitial ? `${firstName} ${lastInitial}` : firstName;
+}
+
 function getFieldValue(data, descriptor) {
   if (typeof descriptor === "function") {
     return descriptor(data);
@@ -277,29 +320,45 @@ function createDocumentLines(data) {
       marginBottom: 8,
     });
 
-    section.fields.forEach(([label, descriptor]) => {
+    const items =
+      section.items ||
+      [
+        ...(section.fields || []).map(([label, descriptor]) => ({
+          type: "field",
+          label,
+          descriptor,
+        })),
+        ...(section.paragraphs || []).map(([label, key]) => ({
+          type: "paragraph",
+          label,
+          key,
+        })),
+      ];
+
+    items.forEach((item) => {
+      if (item.type === "paragraph") {
+        pushLine(`${item.label}:`, {
+          font: "bold",
+          marginTop: 3,
+          marginBottom: 2,
+        });
+
+        wrapText(data[item.key] || "—", 10, 10).forEach((line, index, wrapped) => {
+          pushLine(line, {
+            indent: 10,
+            marginBottom: index === wrapped.length - 1 ? 4 : 0,
+          });
+        });
+        return;
+      }
+
       const wrapped = wrapText(
-        `${label}: ${getFieldValue(data, descriptor) || "—"}`,
+        `${item.label}: ${getFieldValue(data, item.descriptor) || "—"}`,
         10
       );
       wrapped.forEach((line, index) => {
         pushLine(line, {
           indent: index === 0 ? 0 : 10,
-          marginBottom: index === wrapped.length - 1 ? 4 : 0,
-        });
-      });
-    });
-
-    (section.paragraphs || []).forEach(([label, key]) => {
-      pushLine(`${label}:`, {
-        font: "bold",
-        marginTop: 3,
-        marginBottom: 2,
-      });
-
-      wrapText(data[key] || "—", 10, 10).forEach((line, index, wrapped) => {
-        pushLine(line, {
-          indent: 10,
           marginBottom: index === wrapped.length - 1 ? 4 : 0,
         });
       });
@@ -539,16 +598,72 @@ async function requestAccessToken(interactive) {
   });
 }
 
-async function uploadPdfToDrive(pdfBlob, fileName, interactive) {
-  const token = await requestAccessToken(interactive);
+async function uploadPdfToDrive(
+  pdfBlob,
+  fileName,
+  { interactive = false, data = {} } = {}
+) {
+  const token = await requestAccessToken(Boolean(interactive));
+  const parentFolderId = appConfig.googleDriveFolderId || "root";
+  const clientFolderName = buildClientFolderName(data);
+  const escapedFolderName = clientFolderName
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'");
+  const query = [
+    `mimeType='application/vnd.google-apps.folder'`,
+    `name='${escapedFolderName}'`,
+    "trashed=false",
+    `'${parentFolderId}' in parents`,
+  ].join(" and ");
+  const lookupUrl = new URL("https://www.googleapis.com/drive/v3/files");
+  lookupUrl.searchParams.set("q", query);
+  lookupUrl.searchParams.set("pageSize", "1");
+  lookupUrl.searchParams.set("fields", "files(id,name)");
+  lookupUrl.searchParams.set("supportsAllDrives", "true");
+  lookupUrl.searchParams.set("includeItemsFromAllDrives", "true");
+  const lookupResponse = await fetch(lookupUrl.toString(), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const lookupResult = await lookupResponse.json().catch(() => ({}));
+  if (!lookupResponse.ok) {
+    throw new Error(
+      lookupResult?.error?.message ||
+        "Failed to locate the client folder in Google Drive."
+    );
+  }
+  let clientFolderId = lookupResult?.files?.[0]?.id;
+  if (!clientFolderId) {
+    const createFolderResponse = await fetch(
+      "https://www.googleapis.com/drive/v3/files?fields=id&supportsAllDrives=true",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({
+          name: clientFolderName,
+          mimeType: "application/vnd.google-apps.folder",
+          parents: [parentFolderId],
+        }),
+      }
+    );
+    const createFolderResult = await createFolderResponse.json().catch(() => ({}));
+    if (!createFolderResponse.ok || !createFolderResult?.id) {
+      throw new Error(
+        createFolderResult?.error?.message ||
+          "Failed to create the client folder in Google Drive."
+      );
+    }
+    clientFolderId = createFolderResult.id;
+  }
   const metadata = {
     name: fileName,
     mimeType: "application/pdf",
+    parents: [clientFolderId],
   };
-
-  if (appConfig.googleDriveFolderId) {
-    metadata.parents = [appConfig.googleDriveFolderId];
-  }
 
   const boundary = `intake-form-${Date.now()}-${Math.random()
     .toString(16)
@@ -626,7 +741,10 @@ async function processQueue(interactive = false) {
     try {
       for (const entry of queue) {
         const pdfBlob = createPdfBlob(entry.data);
-        await uploadPdfToDrive(pdfBlob, entry.fileName, interactive);
+        await uploadPdfToDrive(pdfBlob, entry.fileName, {
+          interactive,
+          data: entry.data,
+        });
         nextQueue = nextQueue.filter(
           (queuedEntry) => queuedEntry.id !== entry.id
         );
@@ -687,7 +805,10 @@ form.addEventListener("submit", async (event) => {
       return;
     }
 
-    const result = await uploadPdfToDrive(pdfBlob, fileName, true);
+    const result = await uploadPdfToDrive(pdfBlob, fileName, {
+      interactive: true,
+      data,
+    });
     clearDraft();
     form.reset();
     showStatus(
