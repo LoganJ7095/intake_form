@@ -182,8 +182,7 @@ function buildSafeFileName(data, createdAt = new Date()) {
     .replace(/[^a-zA-Z0-9 _-]/g, "")
     .trim()
     .replace(/\s+/g, "_");
-  const timestamp = createdAt.toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  return `IntakeForm_${safeName || "patient"}_${timestamp}.pdf`;
+  return `${safeName || "patient"}.pdf`;
 }
 
 function getFieldValue(data, descriptor) {
