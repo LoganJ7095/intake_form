@@ -29,6 +29,10 @@ const PAGE_HEIGHT = 792;
 const PAGE_MARGIN = 50;
 const USABLE_WIDTH = PAGE_WIDTH - PAGE_MARGIN * 2;
 const LINE_HEIGHT_MULTIPLIER = 1.35;
+const PDF_FONT_FAMILIES = {
+  regular: "Helvetica, Arial, sans-serif",
+  bold: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+};
 
 let queueProcessingPromise = null;
 let accessToken = null;
@@ -230,7 +234,7 @@ function buildClientFolderName(data) {
         .toUpperCase()
     : "";
 
-  return lastInitial ? `${firstName} ${lastInitial}` : firstName;
+  return lastInitial ? `${firstName}${lastInitial}` : firstName;
 }
 
 function getFieldValue(data, descriptor) {
@@ -292,6 +296,26 @@ function wrapText(text, fontSize = 10, indent = 0) {
   return lines;
 }
 
+function getPdfTextWidth(text, fontSize, font = "regular") {
+  if (typeof document === "undefined") {
+    return String(text || "").length * fontSize * 0.55;
+  }
+
+  const canvas =
+    getPdfTextWidth.canvas ||
+    (getPdfTextWidth.canvas = document.createElement("canvas"));
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return String(text || "").length * fontSize * 0.55;
+  }
+
+  const fontWeight = font === "bold" ? "700" : "400";
+  const fontFamily = PDF_FONT_FAMILIES[font] || PDF_FONT_FAMILIES.regular;
+  context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  return context.measureText(String(text || "")).width;
+}
+
 function createDocumentLines(data) {
   const lines = [];
   const pushLine = (text, options = {}) => {
@@ -341,7 +365,6 @@ function createDocumentLines(data) {
     items.forEach((item) => {
       if (item.type === "paragraph") {
         pushLine(`${item.label}:`, {
-          font: "bold",
           marginTop: 3,
           marginBottom: 2,
         });
@@ -388,7 +411,11 @@ function paginateLines(lines) {
       currentY = PAGE_HEIGHT - PAGE_MARGIN;
     }
 
-    const textWidthEstimate = line.text.length * line.fontSize * 0.55;
+    const textWidthEstimate = getPdfTextWidth(
+      line.text,
+      line.fontSize,
+      line.font
+    );
     const x = line.center
       ? Math.max(PAGE_MARGIN, (PAGE_WIDTH - textWidthEstimate) / 2)
       : PAGE_MARGIN + line.indent;
@@ -408,19 +435,13 @@ function paginateLines(lines) {
 }
 
 function pdfHexString(text) {
-  let hex = "FEFF";
+  let hex = "";
 
   for (const character of String(text || "")) {
     const codePoint = character.codePointAt(0);
-    if (codePoint > 0xffff) {
-      const adjusted = codePoint - 0x10000;
-      const high = 0xd800 + (adjusted >> 10);
-      const low = 0xdc00 + (adjusted & 0x3ff);
-      hex += high.toString(16).padStart(4, "0");
-      hex += low.toString(16).padStart(4, "0");
-    } else {
-      hex += codePoint.toString(16).padStart(4, "0");
-    }
+    // Type1 fonts use single-byte Latin-1 encoding; replace unsupported characters with '?'
+    const byte = codePoint <= 0xff ? codePoint : 0x3f;
+    hex += byte.toString(16).padStart(2, "0");
   }
 
   return `<${hex.toUpperCase()}>`;
@@ -483,7 +504,7 @@ function createPdfBlob(data) {
 
   const encoder = new TextEncoder();
   const maxObjectNumber = 4 + pages.length * 2;
-  let output = "%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n";
+  let output = "%PDF-1.4\n";
   let offset = encoder.encode(output).length;
   const offsets = [0];
 
