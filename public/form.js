@@ -3,7 +3,20 @@ const submitBtn = document.getElementById("submit-btn");
 const saveDraftBtn = document.getElementById("save-draft-btn");
 const statusMessage = document.getElementById("status-message");
 
-const appConfig = window.INTAKE_FORM_CONFIG || {};
+const rawAppConfig = window.INTAKE_FORM_CONFIG || {};
+const appConfig = {
+  googleClientId:
+    (typeof rawAppConfig.googleClientId === "string" &&
+      rawAppConfig.googleClientId.trim()) ||
+    (typeof rawAppConfig.googleOAuthClientId === "string" &&
+      rawAppConfig.googleOAuthClientId.trim()) ||
+    (typeof rawAppConfig.clientId === "string" && rawAppConfig.clientId.trim()) ||
+    "",
+  googleDriveFolderId:
+    typeof rawAppConfig.googleDriveFolderId === "string"
+      ? rawAppConfig.googleDriveFolderId.trim()
+      : "",
+};
 const STORAGE_KEYS = {
   draft: "intake-form-draft-v2",
   queue: "intake-form-upload-queue-v2",
