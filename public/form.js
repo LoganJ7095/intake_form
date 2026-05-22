@@ -408,19 +408,13 @@ function paginateLines(lines) {
 }
 
 function pdfHexString(text) {
-  let hex = "FEFF";
+  let hex = "";
 
   for (const character of String(text || "")) {
     const codePoint = character.codePointAt(0);
-    if (codePoint > 0xffff) {
-      const adjusted = codePoint - 0x10000;
-      const high = 0xd800 + (adjusted >> 10);
-      const low = 0xdc00 + (adjusted & 0x3ff);
-      hex += high.toString(16).padStart(4, "0");
-      hex += low.toString(16).padStart(4, "0");
-    } else {
-      hex += codePoint.toString(16).padStart(4, "0");
-    }
+    // Type1 fonts use single-byte Latin-1 encoding; replace unsupported characters with '?'
+    const byte = codePoint <= 0xff ? codePoint : 0x3f;
+    hex += byte.toString(16).padStart(2, "0");
   }
 
   return `<${hex.toUpperCase()}>`;
