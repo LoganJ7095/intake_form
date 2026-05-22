@@ -1,5 +1,5 @@
 {
-  "name": "Patient Intake Form",
+  "name": "Client Intake Form",
   "short_name": "Intake Form",
   "description": "Installable intake form that builds PDFs on-device and uploads them to Google Drive.",
   "id": "./",
