@@ -1,4 +1,4 @@
-const CACHE_NAME = "intake-form-shell-v3";
+const CACHE_NAME = "intake-form-shell-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,6 +8,14 @@ const APP_SHELL = [
   "./icons/icon-180.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+];
+const NETWORK_FIRST_PATH_SUFFIXES = [
+  "/",
+  "/index.html",
+  "/styles.css",
+  "/form.js",
+  "/manifest.json",
+  "/app-config.js",
 ];
 
 self.addEventListener("install", (event) => {
@@ -40,7 +48,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (requestUrl.pathname.endsWith("/app-config.js")) {
+  const isNetworkFirstAsset = NETWORK_FIRST_PATH_SUFFIXES.some((suffix) =>
+    requestUrl.pathname.endsWith(suffix)
+  );
+
+  if (isNetworkFirstAsset) {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
@@ -53,7 +65,14 @@ self.addEventListener("fetch", (event) => {
 
           return networkResponse;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() =>
+          caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            return caches.match("./index.html");
+          })
+        )
     );
     return;
   }

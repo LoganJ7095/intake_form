@@ -230,7 +230,7 @@ function buildClientFolderName(data) {
         .toUpperCase()
     : "";
 
-  return lastInitial ? `${firstName} ${lastInitial}` : firstName;
+  return lastInitial ? `${firstName}${lastInitial}` : firstName;
 }
 
 function getFieldValue(data, descriptor) {
