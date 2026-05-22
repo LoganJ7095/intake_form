@@ -10,7 +10,8 @@ const appConfig = {
       rawAppConfig.googleClientId.trim()) ||
     (typeof rawAppConfig.googleOAuthClientId === "string" &&
       rawAppConfig.googleOAuthClientId.trim()) ||
-    (typeof rawAppConfig.clientId === "string" && rawAppConfig.clientId.trim()) ||
+    (typeof rawAppConfig.clientId === "string" &&
+      rawAppConfig.clientId.trim()) ||
     "",
   googleDriveFolderId:
     typeof rawAppConfig.googleDriveFolderId === "string"
@@ -35,7 +36,7 @@ let accessTokenExpiresAt = 0;
 
 const sections = [
   {
-    title: "Patient Information",
+    title: "Client Information",
     fields: [
       ["Patient's Name", "patient-name"],
       ["DOB", "patient-dob"],
@@ -220,9 +221,13 @@ function buildClientFolderName(data) {
   const nameParts = patientName.split(" ").filter(Boolean);
   const rawFirstName = (nameParts[0] || "Client").replace(/[^a-zA-Z0-9-]/g, "");
   const firstName = rawFirstName || "Client";
-  const lastNamePart = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+  const lastNamePart =
+    nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
   const lastInitial = lastNamePart
-    ? lastNamePart.replace(/[^a-zA-Z0-9]/g, "").charAt(0).toUpperCase()
+    ? lastNamePart
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .charAt(0)
+        .toUpperCase()
     : "";
 
   return lastInitial ? `${firstName} ${lastInitial}` : firstName;
@@ -320,20 +325,18 @@ function createDocumentLines(data) {
       marginBottom: 8,
     });
 
-    const items =
-      section.items ||
-      [
-        ...(section.fields || []).map(([label, descriptor]) => ({
-          type: "field",
-          label,
-          descriptor,
-        })),
-        ...(section.paragraphs || []).map(([label, key]) => ({
-          type: "paragraph",
-          label,
-          key,
-        })),
-      ];
+    const items = section.items || [
+      ...(section.fields || []).map(([label, descriptor]) => ({
+        type: "field",
+        label,
+        descriptor,
+      })),
+      ...(section.paragraphs || []).map(([label, key]) => ({
+        type: "paragraph",
+        label,
+        key,
+      })),
+    ];
 
     items.forEach((item) => {
       if (item.type === "paragraph") {
@@ -343,12 +346,14 @@ function createDocumentLines(data) {
           marginBottom: 2,
         });
 
-        wrapText(data[item.key] || "—", 10, 10).forEach((line, index, wrapped) => {
-          pushLine(line, {
-            indent: 10,
-            marginBottom: index === wrapped.length - 1 ? 4 : 0,
-          });
-        });
+        wrapText(data[item.key] || "—", 10, 10).forEach(
+          (line, index, wrapped) => {
+            pushLine(line, {
+              indent: 10,
+              marginBottom: index === wrapped.length - 1 ? 4 : 0,
+            });
+          }
+        );
         return;
       }
 
@@ -650,7 +655,9 @@ async function uploadPdfToDrive(
         }),
       }
     );
-    const createFolderResult = await createFolderResponse.json().catch(() => ({}));
+    const createFolderResult = await createFolderResponse
+      .json()
+      .catch(() => ({}));
     if (!createFolderResponse.ok || !createFolderResult?.id) {
       throw new Error(
         createFolderResult?.error?.message ||
