@@ -105,6 +105,56 @@ Then use **Share → Add to Home Screen**.
 
 ---
 
+## Deploy to GitHub Pages
+
+This repository can deploy automatically from `main` using GitHub Actions.
+
+### 1. Enable GitHub Pages to use Actions
+
+In GitHub:
+
+1. Go to **Settings → Pages** for this repository.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+
+### 2. Push to `main`
+
+The workflow at `/home/runner/work/intake_form/intake_form/.github/workflows/deploy-pages.yml` deploys `public/` to Pages on every push to `main` (and can also be run manually).
+
+After deployment, your site URL is typically:
+
+```text
+https://<github-username>.github.io/<repository-name>/
+```
+
+For this repository, that will be:
+
+```text
+https://LoganJ7095.github.io/intake_form/
+```
+
+### 3. Add the Pages origin to Google OAuth
+
+In your Google OAuth client settings, add your deployed Pages origin to **Authorized JavaScript origins**, for example:
+
+```text
+https://LoganJ7095.github.io
+```
+
+Keep local origins too (for example `http://192.168.1.10:3000`) if you still use local hosting.
+
+### 4. Verify in production
+
+1. Open the deployed Pages URL.
+2. Fill and submit a test intake form.
+3. Confirm Google sign-in works.
+4. Confirm the PDF uploads to the expected Drive location.
+
+### 5. Optional custom domain
+
+After Pages is working, you can add a custom domain from **Settings → Pages** and then add that domain origin to Google OAuth Authorized JavaScript origins.
+
+---
+
 ## How uploads work now
 
 1. The user fills out the form.
