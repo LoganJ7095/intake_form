@@ -1,10 +1,7 @@
 const form = document.getElementById("intake-form");
 const submitBtn = document.getElementById("submit-btn");
 const saveDraftBtn = document.getElementById("save-draft-btn");
-const syncQueueBtn = document.getElementById("sync-queue-btn");
 const statusMessage = document.getElementById("status-message");
-const queueStatus = document.getElementById("queue-status");
-const connectionStatus = document.getElementById("connection-status");
 
 const appConfig = window.INTAKE_FORM_CONFIG || {};
 const STORAGE_KEYS = {
@@ -111,26 +108,10 @@ function getQueue() {
 
 function setQueue(queue) {
   localStorage.setItem(STORAGE_KEYS.queue, JSON.stringify(queue));
-  updateQueueStatus();
-}
-
-function updateQueueStatus() {
-  if (queueStatus) {
-    queueStatus.textContent = `Pending uploads: ${getQueue().length}`;
-  }
-}
-
-function updateConnectionStatus() {
-  if (connectionStatus) {
-    connectionStatus.textContent = navigator.onLine
-      ? "Internet available"
-      : "Offline: uploads will queue";
-  }
 }
 
 function setBusyState(isBusy) {
   submitBtn.disabled = isBusy;
-  syncQueueBtn.disabled = isBusy;
 }
 
 function collectFormData() {
@@ -629,7 +610,6 @@ async function processQueue(interactive = false) {
   }
 
   if (!navigator.onLine || getQueue().length === 0) {
-    updateQueueStatus();
     return;
   }
 
@@ -679,11 +659,6 @@ async function processQueue(interactive = false) {
 
 saveDraftBtn.addEventListener("click", () => {
   saveDraft();
-});
-
-syncQueueBtn.addEventListener("click", async () => {
-  hideStatus();
-  await processQueue(true);
 });
 
 form.addEventListener("submit", async (event) => {
@@ -737,16 +712,12 @@ form.addEventListener("submit", async (event) => {
     showStatus(`❌ ${error.message}`, "error");
   } finally {
     setBusyState(false);
-    updateQueueStatus();
   }
 });
 
 window.addEventListener("online", () => {
-  updateConnectionStatus();
   processQueue(false);
 });
-
-window.addEventListener("offline", updateConnectionStatus);
 
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden && navigator.onLine) {
@@ -755,8 +726,6 @@ document.addEventListener("visibilitychange", () => {
 });
 
 restoreDraft();
-updateQueueStatus();
-updateConnectionStatus();
 registerServiceWorker();
 
 if (appConfig.googleClientId) {
